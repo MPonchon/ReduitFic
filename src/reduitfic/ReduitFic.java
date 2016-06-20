@@ -37,6 +37,7 @@ public class ReduitFic {
     String DescritonVersion = "Modification parametres.";
     
     File fileIni, fileOut, fileSrc;
+    String fileSrcName;
     int action; // action choisie
     
     // contient les noms des champs
@@ -49,6 +50,7 @@ public class ReduitFic {
      * @param args 
      */
     public ReduitFic(String[] args) {
+        fileIni = fileOut = fileSrc = null;
         try {
             action = chooseAction(args);
         }
@@ -115,10 +117,11 @@ public class ReduitFic {
                 //System.out.println("fileName [" + fileName + "]");
                 action = this.action  =  ACTION_REDUIT; 
                 fileSrc = new File(fileName);
+                fileSrcName = fileName;
                 if (!fileSrc.isFile()) { throw new FileNotFoundException("fileSource -s incorrect : " + fileName); }
             }  
             if (opt == 'o') { 
-                System.out.println("fileName [" + fileName + "]");
+                //System.out.println("fileName [" + fileName + "]");
                 fileOut = new File(fileName);
                 action  =  ACTION_REDUIT; 
             }    
@@ -277,6 +280,16 @@ public class ReduitFic {
         //FileReader always assumes default encoding is OK!
         //int noLine = 0; 
        // System.out.println("writeToFile : fileOut ["+fileOut+"]");
+        if (fileOut == null) {
+           String fileOutName = fileSrcName;
+            int pos = fileSrcName.lastIndexOf("\\", fileSrcName.length());
+            if (pos > 0) {
+                fileOutName = fileSrcName.substring(0, pos) + "\\out.csv";
+            }
+            //System.out.println("pos :" + pos);
+            //System.out.println("fileOutName :" + fileOutName);
+            fileOut = new File(fileOutName);
+        }
         try {
             FileWriter fileWriter =  new FileWriter(fileOut);  // Assume default encoding.
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter); // Always wrap FileWriter in BufferedWriter.
@@ -376,6 +389,7 @@ public class ReduitFic {
     
     public void reduitColonnes() {
         fillIni(); // rempli le HashSet avec fileini
+
         writeToFile(readInList());
         if (fileOut.isFile()) {
             System.out.println("Fichier [" + fileOut + "] cree.");

@@ -110,7 +110,7 @@ public class ReduitFicTest {
         FR.executeAction();
     }
     
-    @Test
+    //@Test
     public void testHelp() {
         String args[] = new String[4];
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniPlanif.txt";
@@ -124,16 +124,17 @@ public class ReduitFicTest {
     }   
     
     
-    //@Test
+    @Test
     public void testETI() {
-        String args[] = new String[3];
+        String args[] = new String[2];
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI.txt";
         args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIsrc_test.csv";
-        args[2] = "-oF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIout.csv";
+        //args[1] ="in.csv";
+        //args[2] = "-oF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIout.csv";
         
         FR = new ReduitFic(args);
         assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
-        FR.executeAction();
-     
+     //   FR.executeAction();
+        ReduitFic.main(args);
     }    
 }
