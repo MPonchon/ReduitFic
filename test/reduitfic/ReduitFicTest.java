@@ -70,15 +70,6 @@ public class ReduitFicTest {
         FR.fillIni();
     }
     
-    /**
-     * Test of readWrite, of class ReduitFic.
-     */
-    //@Test
-    public void testReadWrite() {    
-        FR.fillIni();
-        //FR.readWrite();
-    }
-    
     //@Test
     public void testPlanif() {
         String args[] = new String[3];
@@ -110,7 +101,7 @@ public class ReduitFicTest {
         FR.executeAction();
     }
     
-    //@Test
+    @Test
     public void testHelp() {
         String args[] = new String[4];
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniPlanif.txt";
@@ -124,7 +115,7 @@ public class ReduitFicTest {
     }   
     
     
-    @Test
+    //@Test
     public void testETI() {
         String args[] = new String[2];
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI.txt";
