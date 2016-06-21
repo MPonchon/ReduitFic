@@ -26,9 +26,7 @@ public class ReduitFic {
     static public int ACTION_VERSION = 0;
     static public int ACTION_HELP = 1;
     static public int ACTION_REDUIT = 2;
-    // membres
 
-    //char action; // 'e' : exe, 'h': help
     String version = "ReduitFic v1.3";
     String DescritonVersion = "Modification parametres.";
 
@@ -45,7 +43,7 @@ public class ReduitFic {
     HashMap<String, String> mapFiltres = new HashMap<String, String>();
 
     private final static Pattern LTRIM = Pattern.compile("^\\s+");
-    
+
     /**
      * création de l'instance. Initialise l'action a mener
      *
@@ -54,8 +52,8 @@ public class ReduitFic {
     public ReduitFic(String[] args) {
         fileName = new String[3];
         action = chooseAction(args);
-        for(String file: fileName) {
-            System.out.println("file :[" + file + "] " );
+        for (String file : fileName) {
+            System.out.println("file :[" + file + "] ");
         }
     }
 
@@ -192,7 +190,7 @@ public class ReduitFic {
     private static String ltrim(String s) {
         return LTRIM.matcher(s).replaceAll("");
     }
-    
+
     /**
      * lire le fileSrc et retourne un array list de string avec les colonnes
      * utiles
@@ -238,7 +236,7 @@ public class ReduitFic {
                 buildLine.append(keys[keys.length - 1]); // ecriture du dernier champ des titres
             }
             dataOut.add(buildLine.toString());
-   
+
             // lectures des données        
             while ((line = input.readLine()) != null) {
                 StringBuilder sbLineOut = new StringBuilder();
@@ -251,7 +249,9 @@ public class ReduitFic {
                         // presence du filtre ?
                         if (filtreKey != null) {
                             filtreOk = compareFiltre(dataLine[i], filtreKey);
-                            if (!filtreOk) break; // ligne suivante
+                            if (!filtreOk) {
+                                break; // ligne suivante
+                            }
                         }
                         sbLineOut.append(dataLine[i]);
                         sbLineOut.append(";");
@@ -263,12 +263,10 @@ public class ReduitFic {
                 }
             }
             input.close();
-        } 
-        catch (FileNotFoundException ex) {
-            System.out.println("Erreur : [" + ex.getMessage()+ "]");
+        } catch (FileNotFoundException ex) {
+            System.out.println("Erreur : [" + ex.getMessage() + "]");
             return null;
-        }            
-        catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
             return null;
         }
