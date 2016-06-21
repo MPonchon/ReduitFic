@@ -101,7 +101,7 @@ public class ReduitFicTest {
         FR.executeAction();
     }
     
-    @Test
+   // @Test
     public void testHelp() {
         String args[] = new String[4];
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniPlanif.txt";
@@ -127,5 +127,49 @@ public class ReduitFicTest {
         assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
      //   FR.executeAction();
         ReduitFic.main(args);
-    }    
+    } 
+    
+    
+    @Test
+    public void testFiltreFileIni() {
+        String args[] = new String[3];
+        args[0] = "-i    F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI_filtre.txt";
+        args[1] = "-s F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETI3_J15_151015_064743.csv";
+        //args[1] ="in.csv";
+        args[2] = "-o   F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIout.csv";
+        
+        FR = new ReduitFic(args);
+        assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
+      //  FR.fillIni();
+       // FR.readInList();
+        FR.executeAction();
+     //   ReduitFic.main(args);
+    }   
+
+   
+    /**
+     * Test of reduitColonnes method, of class ReduitFic.
+     */
+    //@Test
+    public void testCompareFiltre() {
+        System.out.println("Test de testCompareFiltre");
+        String chaine = "hello lolo";
+        String filtre = "lo";
+        
+        String args[] = new String[2];
+        args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI_filtre.txt";
+        args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIsrc_test.csv";        
+        FR = new ReduitFic(args);
+        assertTrue(FR.compareFiltre(chaine, filtre));
+        assertTrue(FR.compareFiltre(chaine, "lolo"));
+        assertTrue(FR.compareFiltre(chaine, chaine));
+        assertTrue(FR.compareFiltre(chaine, "*lolo"));
+        assertTrue(FR.compareFiltre(chaine, "hello*"));
+        
+        assertFalse(FR.compareFiltre(chaine, "lop"));
+        assertFalse(FR.compareFiltre(chaine, "lop*"));
+    }
+
+  
+    
 }

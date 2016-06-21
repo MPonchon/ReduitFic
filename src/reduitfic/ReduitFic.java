@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.regex.Pattern;
 
 /**
  * Reduit les colonnes d'un fichier csv
@@ -22,14 +23,13 @@ import java.util.HashSet;
 public class ReduitFic {
 
     // actions possibles
-
     static public int ACTION_VERSION = 0;
     static public int ACTION_HELP = 1;
     static public int ACTION_REDUIT = 2;
     // membres
 
     //char action; // 'e' : exe, 'h': help
-    String version = "ReduitFic v1.2";
+    String version = "ReduitFic v1.3";
     String DescritonVersion = "Modification parametres.";
 
     String[] fileName;  // nom des fichiers
@@ -41,8 +41,11 @@ public class ReduitFic {
 
     // contient les noms des champs
     HashSet<String> fieldsIni = new HashSet<String>();
-    HashMap<String, HashSet<String>> mapFiltres = new HashMap<String, HashSet<String>>();
+    // filtre associées aux colonnes
+    HashMap<String, String> mapFiltres = new HashMap<String, String>();
 
+    private final static Pattern LTRIM = Pattern.compile("^\\s+");
+    
     /**
      * création de l'instance. Initialise l'action a mener
      *
@@ -51,6 +54,9 @@ public class ReduitFic {
     public ReduitFic(String[] args) {
         fileName = new String[3];
         action = chooseAction(args);
+        for(String file: fileName) {
+            System.out.println("file :[" + file + "] " );
+        }
     }
 
     /**
@@ -91,29 +97,17 @@ public class ReduitFic {
                 return ACTION_HELP;
             }
 
-            String file = param.substring(2, param.length());
+            String file = ltrim(param.substring(2, param.length())); // supprime les espaces entre option et le reste
             if (opt == 'i') {
                 action = this.action = ACTION_REDUIT;
                 fileName[FILE_INI] = file;
-                /*
-                 //System.out.println("fileName [" + fileName + "]");
-                 fileIni = new File(fileName);
-                 if (!fileIni.isFile()) { throw new FileNotFoundException("fileIn -i incorrect : " + fileName); }
-                 */
             }
             if (opt == 's') {
                 //System.out.println("fileName [" + fileName + "]");
                 action = this.action = ACTION_REDUIT;
                 fileName[FILE_SRC] = file;
-                /*
-                 fileSrc = new File(fileName);
-                 fileSrcName = fileName;
-                 if (!fileSrc.isFile()) { throw new FileNotFoundException("fileSource -s incorrect : " + fileName); }
-                 */
             }
             if (opt == 'o') {
-                //System.out.println("fileName [" + fileName + "]");
-                // fileOut = new File(fileName);
                 action = ACTION_REDUIT;
                 fileName[FILE_OUT] = file;
             }
@@ -138,7 +132,7 @@ public class ReduitFic {
      * rempli le HashSet avec fileini
      */
     public void fillIni() {
-       // StringBuilder contents = new StringBuilder();
+        // StringBuilder contents = new StringBuilder();
 
         try {
             // creation du fichier
@@ -147,7 +141,7 @@ public class ReduitFic {
                 throw new FileNotFoundException("fileIn -i incorrect : " + fileName[FILE_INI]);
             }
 
-			//use buffering, reading one line at a time
+            //use buffering, reading one line at a time
             //FileReader always assumes default encoding is OK!
             BufferedReader input = new BufferedReader(new FileReader(fileIni));
             try {
@@ -165,16 +159,14 @@ public class ReduitFic {
                     String[] parts = line.split(";");
 //                  System.out.println("fillIni :: line :[" + line + "] parts :" +  parts.length );
                     if (parts.length > 1) {
-                        HashSet<String> values = null;
+                        String filtre = null;
                         fieldsIni.add(parts[0]);
                         for (int i = 1; i < parts.length; i++) {
-                            values = mapFiltres.get(parts[0]);
-                            if (values == null) {
-                                values = new HashSet<String>();
-                            }
-                            values.add(parts[i]);
-//                          System.out.println("ajout  ::" +parts[0]+ ", " +parts[i]+ ".");
-                            mapFiltres.put(parts[0], values);
+                            filtre = mapFiltres.get(parts[0]);
+                            filtre = parts[i];
+                            //System.out.println("ajout  ::" +parts[0]+ ", " +parts[i]+ ".");
+                            mapFiltres.put(parts[0], filtre);
+                            //dumpMap();
                         }
                     } else {
                         //contents.append(System.getProperty("line.separator"));
@@ -187,23 +179,36 @@ public class ReduitFic {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
     }
 
+    public void dumpMap() {
+        System.out.println("dumpMap");
+        for (String key : mapFiltres.keySet()) {
+            System.out.println("key " + key + ", val : " + mapFiltres.get(key) + " .");
+        }
+    }
+
+    private static String ltrim(String s) {
+        return LTRIM.matcher(s).replaceAll("");
+    }
+    
     /**
      * lire le fileSrc et retourne un array list de string avec les colonnes
      * utiles
      */
     public ArrayList<String> readInList() {
-        ArrayList<String> data = new ArrayList<String>();
+
+        ArrayList<String> dataOut = new ArrayList<String>();
 //        System.out.println("fieldsIni contient " + fieldsIni.size()+ " elem");
         try {
             // creation du fichier
             File fileSrc = new File(fileName[FILE_SRC]);
             if (!fileSrc.isFile()) {
-                throw new FileNotFoundException("fileIn -i incorrect : " + fileName[FILE_SRC]);
+                throw new FileNotFoundException("FILE_SRC -s incorrect : " + fileName[FILE_SRC]);
             }
 
-         //use buffering, reading one line at a time
+            //use buffering, reading one line at a time
             //FileReader always assumes default encoding is OK!
             BufferedReader input = new BufferedReader(new FileReader(fileSrc));
             String line = null; //
@@ -217,7 +222,9 @@ public class ReduitFic {
             if (keys == null) {
                 throw new IllegalArgumentException("le fichier source ne contient pas d'entete");
             }
-            // construction de l'ensemble des colonnes utiles
+
+            // construction de l'ensemble des n° de colonnes 
+            // et construit le titre
             HashSet<Integer> colonnes = new HashSet<Integer>();
             for (int i = 0; i < keys.length - 1; i++) {
                 if (fieldsIni.contains(keys[i])) {
@@ -230,50 +237,60 @@ public class ReduitFic {
                 colonnes.add(keys.length - 1);
                 buildLine.append(keys[keys.length - 1]); // ecriture du dernier champ des titres
             }
-            data.add(buildLine.toString());
-
-//            int noLine = 0;        
+            dataOut.add(buildLine.toString());
+   
             // lectures des données        
             while ((line = input.readLine()) != null) {
-                // System.out.println("noLine :" + noLine + ", line [" + line + "]");
                 StringBuilder sbLineOut = new StringBuilder();
                 String[] dataLine = line.split(";");
 
-                boolean filtreOk = true;
+                boolean filtreOk = true; //
                 for (int i = 0; i < dataLine.length; i++) {
-                    //System.out.println("noLine :" + noLine + ", dataLine ["+ i + "] dataLine [" + dataLine[i] + "]");
                     if (colonnes.contains(i)) {
-                        HashSet<String> setFiltreKeys = mapFiltres.get(keys[i]);
-//                        System.out.println("keys[" + i + "] (" + keys[i] +")");
-                        if (setFiltreKeys != null && !setFiltreKeys.contains(dataLine[i])) {
-                            //System.out.println("valeur nok -> VIREE : dataLine[" + i + "] " +dataLine[i]);
-                            filtreOk = false;
+                        String filtreKey = mapFiltres.get(keys[i]);    //System.out.println("keys[" + i + "] (" + keys[i] +")");
+                        // presence du filtre ?
+                        if (filtreKey != null) {
+                            filtreOk = compareFiltre(dataLine[i], filtreKey);
+                            if (!filtreOk) break; // ligne suivante
                         }
-//                        //debug
-//                        else if (setFiltreKeys != null){
-//
-//                            System.out.println("ok dataLine[" + i + "] (" + dataLine[i] +")");
-//                        }
                         sbLineOut.append(dataLine[i]);
                         sbLineOut.append(";");
-                        // System.out.println("noLine :" + noLine + ", sbLineOut [" + sbLineOut.toString() + "]");
                     }
                 }
                 if (filtreOk && sbLineOut.length() > 0) {
-                    data.add(sbLineOut.substring(0, sbLineOut.length() - 1)); // enleve le dernier ;
+                    dataOut.add(sbLineOut.substring(0, sbLineOut.length() - 1)); // enleve le dernier ;
                     // System.out.println("noLine :" + (noLine +2) + ", sbLineOut [" + sbLineOut.substring(0, sbLineOut.length() - 1) + "]");
                 }
-//                noLine++;
             }
             input.close();
-        } catch (IOException ex) {
+        } 
+        catch (FileNotFoundException ex) {
+            System.out.println("Erreur : [" + ex.getMessage()+ "]");
+            return null;
+        }            
+        catch (IOException ex) {
             ex.printStackTrace();
+            return null;
         }
-        return data;
+        return dataOut;
+    }
+
+    public boolean compareFiltre(String value, String filtre) {
+        if (filtre.charAt(0) == '*') {
+            if (filtre.charAt(filtre.length() - 1) == '*') {
+                return value.contains(filtre.substring(1, filtre.length() - 1));
+            }
+            return value.contains(filtre.substring(1, filtre.length()));
+        }
+        if (filtre.charAt(filtre.length() - 1) == '*') {
+            return value.contains(filtre.substring(0, filtre.length() - 1));
+        }
+        return value.contains(filtre);
     }
 
     /**
      * Ecrit le arraylist dans un fichier
+     *
      * @return true si le fichier est créé
      */
     public boolean writeToFile(ArrayList<String> data) {
@@ -324,8 +341,7 @@ public class ReduitFic {
 
         if (writeToFile(readInList())) {
             System.out.println("Fichier [" + fileName[FILE_OUT] + "] cree.");
-        } 
-        else {
+        } else {
             System.out.println("Erreur de creation du fichier [" + fileName[FILE_OUT] + "].");
         }
     }
@@ -339,12 +355,13 @@ public class ReduitFic {
         System.out.println("Aide : reduit le nombre de colonne d'un fichier.");
         StringBuilder str = new StringBuilder();
         str.append("options :\n");
-        str.append("-ifichierInit.ini : indiquez les noms des champs (colonnes) à conserver\n");
-        str.append("optionnel liste valeurs pour le champ ;val1;val2 ...\n");
-        str.append("-ofichierOut : nom du fichier de sortie\n");
-        str.append("-sfichierSource : nom du fichier du fichier source\n");
+        str.append("-i fichierInit.ini : indiquez les noms des champs (colonnes) à conserver\n");
+        str.append("il est possible d'ajouter un filtre par ligne, apres le nom du champ.\n");
+        str.append("Exemple : CHAMP1;*LOL* pour obtenir les données qui contiennent LOL dans le CHAMP1.\n");
+        str.append("-o fichierOut : nom du fichier de sortie\n");
+        str.append("-s fichierSource : nom du fichier du fichier source\n");
         str.append("\n");
-        str.append("Utilisation: java -jar \"reduitFic.jar\" -ifileini.ini -ofileout.csv -sfilesrc.csv \n");
+        str.append("Utilisation: java -jar \"reduitFic.jar\" -i fileini.ini -o fileout.csv -s filesrc.csv \n");
 
         System.out.println(str.toString());
     }
