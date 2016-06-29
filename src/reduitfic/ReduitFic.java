@@ -165,6 +165,7 @@ public class ReduitFic {
                             //System.out.println("ajout  ::" +parts[0]+ ", " +parts[i]+ ".");
                             mapFiltres.put(parts[0], filtre);
                             //dumpMap();
+                            // TODO : utiliser les regex pour le filtre
                         }
                     } else {
                         //contents.append(System.getProperty("line.separator"));
@@ -274,6 +275,13 @@ public class ReduitFic {
     }
 
     public boolean compareFiltre(String value, String filtre) {
+        if (filtre.charAt(0) == '!') {
+            return !bFiltreContient(value, filtre.substring(1, filtre.length()));
+        }
+        return bFiltreContient(value, filtre);
+    }
+    
+    public boolean bFiltreContient(String value, String filtre) {
         if (filtre.charAt(0) == '*') {
             if (filtre.charAt(filtre.length() - 1) == '*') {
                 return value.contains(filtre.substring(1, filtre.length() - 1));
@@ -284,7 +292,7 @@ public class ReduitFic {
             return value.contains(filtre.substring(0, filtre.length() - 1));
         }
         return value.contains(filtre);
-    }
+    }    
 
     /**
      * Ecrit le arraylist dans un fichier

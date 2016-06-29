@@ -130,7 +130,7 @@ public class ReduitFicTest {
     } 
     
     
-    @Test
+    //@Test
     public void testFiltreFileIni() {
         String args[] = new String[3];
         args[0] = "-i    F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI_filtre.txt";
@@ -150,7 +150,7 @@ public class ReduitFicTest {
     /**
      * Test of reduitColonnes method, of class ReduitFic.
      */
-    //@Test
+    @Test
     public void testCompareFiltre() {
         System.out.println("Test de testCompareFiltre");
         String chaine = "hello lolo";
@@ -160,6 +160,7 @@ public class ReduitFicTest {
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI_filtre.txt";
         args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIsrc_test.csv";        
         FR = new ReduitFic(args);
+        /*
         assertTrue(FR.compareFiltre(chaine, filtre));
         assertTrue(FR.compareFiltre(chaine, "lolo"));
         assertTrue(FR.compareFiltre(chaine, chaine));
@@ -168,6 +169,12 @@ public class ReduitFicTest {
         
         assertFalse(FR.compareFiltre(chaine, "lop"));
         assertFalse(FR.compareFiltre(chaine, "lop*"));
+        */
+        assertFalse(FR.compareFiltre(chaine, "!lolo"));
+        assertFalse(FR.compareFiltre(chaine, "!*lolo"));
+        assertFalse(FR.compareFiltre(chaine, "!hello*"));    
+        assertTrue(FR.compareFiltre(chaine, "!loo"));
+        assertTrue(FR.compareFiltre(chaine, "!lop*"));
     }
 
   
