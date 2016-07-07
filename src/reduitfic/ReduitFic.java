@@ -52,9 +52,11 @@ public class ReduitFic {
     public ReduitFic(String[] args) {
         fileName = new String[3];
         action = chooseAction(args);
+        /*
         for (String file : fileName) {
             System.out.println("file :[" + file + "] ");
         }
+        */
     }
 
     /**
@@ -125,6 +127,21 @@ public class ReduitFic {
             reduitColonnes();
         }
     }
+    
+    /**
+     * cree le fichier et ajoute le rep courant si necessaire
+     * @param name nom du fichier a creer
+     * @return le fichier 
+     */
+    protected File createFile(String name) {
+        //System.err.println("createFile [" + name + "]");
+        // si le nom ne contient des "\" ajoute le rep courant
+        if (!name.contains("\\")) {
+            name = System.getProperty("user.dir") +"\\" + name;
+        }
+        //System.err.println("path [" + name + "]");
+        return new File(name);
+    }
 
     /**
      * rempli le HashSet avec fileini
@@ -134,7 +151,8 @@ public class ReduitFic {
 
         try {
             // creation du fichier
-            File fileIni = new File(fileName[FILE_INI]);
+            //File fileIni = new File(fileName[FILE_INI]);
+            File fileIni = createFile(fileName[FILE_INI]);
             if (!fileIni.isFile()) {
                 throw new FileNotFoundException("fileIn -i incorrect : " + fileName[FILE_INI]);
             }
@@ -202,7 +220,8 @@ public class ReduitFic {
 //        System.out.println("fieldsIni contient " + fieldsIni.size()+ " elem");
         try {
             // creation du fichier
-            File fileSrc = new File(fileName[FILE_SRC]);
+            //File fileSrc = new File(fileName[FILE_SRC]);
+            File fileSrc = createFile(fileName[FILE_SRC]);
             if (!fileSrc.isFile()) {
                 throw new FileNotFoundException("FILE_SRC -s incorrect : " + fileName[FILE_SRC]);
             }
@@ -314,7 +333,8 @@ public class ReduitFic {
 
         }
         try {
-            File fileOut = new File(fileName[FILE_OUT]);
+           // File fileOut = new File(fileName[FILE_OUT]);
+            File fileOut = createFile(fileName[FILE_OUT]);
 
             FileWriter fileWriter = new FileWriter(fileOut);  // Assume default encoding.
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter); // Always wrap FileWriter in BufferedWriter.

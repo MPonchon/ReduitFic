@@ -150,7 +150,7 @@ public class ReduitFicTest {
     /**
      * Test of reduitColonnes method, of class ReduitFic.
      */
-    @Test
+   // @Test
     public void testCompareFiltre() {
         System.out.println("Test de testCompareFiltre");
         String chaine = "hello lolo";
@@ -177,6 +177,17 @@ public class ReduitFicTest {
         assertTrue(FR.compareFiltre(chaine, "!lop*"));
     }
 
-  
+    @Test
+    public void testCreateFile() {
+        System.out.println("Test de testCreateFile");
+        
+        String args[] = new String[2];
+        args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI_filtre.txt";
+        args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIsrc_test.csv";    
+        FR = new ReduitFic(args);
+        
+        FR.createFile("F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI_filtre.txt");
+        FR.createFile("initETI_filtre.txt");
+    }
     
 }
