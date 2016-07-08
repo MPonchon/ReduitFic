@@ -534,12 +534,13 @@ public class ReduitFic {
         str.append("  !*TOTO : ne commence pas par TOTO\n");
         str.append("  # : uniquement les valeurs vides\n");
         str.append("  !# : uniquement les valeurs non vides\n");
-
+        str.append("  & : pour chaque filtre il est possible d'appliquer une condition ET logique\n");
+        str.append(" Exemple :\n  NOM CHAMP;!1*&!2*;*FTH*  pour obtenir les données qui ne commencent pas par 1 ET par 2; OU qui contienne FTH\n");
         str.append("\n-o fichierOut :\n nom du fichier de sortie\n");
         str.append(" si ce parametre est omis le nom du fichier de sortie sera \"out.csv\"\n");
         str.append(" et sera place dans le repertoire de la source.");
         str.append("\n");
-        str.append("\n Exemple d'utilisation:\n java -jar \"reduitFic.jar\" \"-i fileini.ini\" \"-o fileout.csv\" \"-s filesrc.csv\" \n");
+        str.append("\n Exemple d'utilisation:\n java -jar \"reduitFic.jar\" \"-i fileini.ini\" \"-s filesrc.csv\" \"-o fileout.csv\" \n");
 
         System.out.println(str.toString());
     }
