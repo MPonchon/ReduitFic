@@ -115,10 +115,37 @@ public class ReduitFicTest {
     }   
     
     
+   // @Test
+    public void testsrcF15() {
+        String args[] = new String[2];
+        args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniF15.txt";
+        args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\src_testF15.csv";
+        //args[1] ="in.csv";
+        //args[2] = "-oF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIout.csv";
+        
+        FR = new ReduitFic(args);
+        assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
+     //   FR.executeAction();
+        ReduitFic.main(args);
+    }
+
+    @Test
+    public void testfiltreEC() {
+        System.out.println("Test de testfiltreEC");
+        String args[] = new String[3];
+        args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniEC.txt";
+        args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ENCOURS.CSV_160420_043423.csv";
+        args[2] = "-oF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ECout.csv";
+
+        FR = new ReduitFic(args);
+        ReduitFic.main(args);
+    }
+    
     //@Test
     public void testETI() {
+        System.out.println("Test de testETI");
         String args[] = new String[2];
-        args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI.txt";
+        args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniETI.txt1";
         args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIsrc_test.csv";
         //args[1] ="in.csv";
         //args[2] = "-oF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIout.csv";
@@ -127,11 +154,14 @@ public class ReduitFicTest {
         assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
      //   FR.executeAction();
         ReduitFic.main(args);
-    } 
+    }     
+    
+    
     
     
     //@Test
     public void testFiltreFileIni() {
+        System.out.println("Test de testFiltreFileIni");
         String args[] = new String[3];
         args[0] = "-i    F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI_filtre.txt";
         args[1] = "-s F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETI3_J15_151015_064743.csv";
@@ -146,6 +176,22 @@ public class ReduitFicTest {
      //   ReduitFic.main(args);
     }   
 
+    // @Test
+    public void testSansOut() {
+        System.out.println("Test de testSansOut");
+        String args[] = new String[2];
+        args[0] = "-i F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniETIallCol.txt";
+        args[1] = "-s F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETI3_J15_151015_064743.csv";
+        
+       // FR = new ReduitFic(args);
+       // assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
+      //  FR.fillIni();
+       // FR.readInList();
+        //FR.executeAction();
+        ReduitFic.main(args);
+    }   
+
+    
    
     /**
      * Test of reduitColonnes method, of class ReduitFic.
@@ -177,7 +223,7 @@ public class ReduitFicTest {
         assertTrue(FR.compareFiltre(chaine, "!lop*"));
     }
 
-    @Test
+    //@Test
     public void testCreateFile() {
         System.out.println("Test de testCreateFile");
         
