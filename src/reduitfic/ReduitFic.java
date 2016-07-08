@@ -166,7 +166,6 @@ public class ReduitFic {
      */
     public void fillIni() throws java.io.FileNotFoundException {
         // StringBuilder contents = new StringBuilder();
-
         try {
             // creation du fichier
             //File fileIni = new File(fileName[FILE_INI]);
@@ -174,15 +173,12 @@ public class ReduitFic {
             if (!fileIni.isFile()) {
                 throw new java.io.FileNotFoundException();// "fileIn -i incorrect : " + fileName[FILE_INI]);
             }
-
             //use buffering, reading one line at a time
             //FileReader always assumes default encoding is OK!
             BufferedReader input = new BufferedReader(new FileReader(fileIni));
             try {
                 String line = null; //not declared within while loop
                 while ((line = input.readLine()) != null) {
-                  //contents.append(line);
-
                     // rempli les filtres pour chaque colonne
                     String[] parts = line.split("[;]");
                     //System.out.println("fillIni :: line :[" + line + "] parts :" +  parts.length );
@@ -191,18 +187,7 @@ public class ReduitFic {
                         int ps = line.indexOf(";") + 1;
                         String filtre = line.substring(ps, line.length());
                         //System.out.println("ajout filtre  [" + filtre + "]");
-                        // ajoute les filtres dans la map
-                        mapFiltres.put(parts[0], filtre);
-//                        for (int i = 1; i < parts.length; i++) {
-//                            // TODO : fct valide filtre
-//                            if (parts[i].length() > 0) {
-//                                filtre = parts[i];
-//                                //System.out.println("ajout  ::" +parts[0]+ ", " +parts[i]+ ".");
-//                                mapFiltres.put(parts[0], filtre);
-//                                //dumpMap();
-//                                // TODO : utiliser les regex pour le filtre
-//                            }
-//                        }
+                        mapFiltres.put(parts[0], filtre);   // ajoute les filtres dans la map
                     }
                 }
             } finally {
@@ -232,7 +217,6 @@ public class ReduitFic {
      * @return un array list de string avec les colonnes utiles
      */
     public ArrayList<String> readInList() {
-
         ArrayList<String> dataOut = new ArrayList<String>();
 //        System.out.println("fieldsIni contient " + fieldsIni.size()+ " elem");
         try {
@@ -241,11 +225,9 @@ public class ReduitFic {
             if (!fileSrc.isFile()) {
                 throw new FileNotFoundException("FILE_SRC -s incorrect : " + fileName[FILE_SRC]);
             }
-
             //use buffering, reading one line at a time
             //FileReader always assumes default encoding is OK!
             BufferedReader input = new BufferedReader(new FileReader(fileSrc));
-
             // --- construction de la ligne titre ----
             StringBuilder buildTitre = new StringBuilder();
             // lecture des titres
@@ -257,7 +239,6 @@ public class ReduitFic {
             if (keys == null) {
                 throw new IllegalArgumentException("le fichier source ne contient pas d'entete");
             }
-
             // construction de l'ensemble des n° de colonnes 
             // et construit le titre
             TreeSet<Integer> colonnes = new TreeSet<Integer>();
@@ -316,14 +297,14 @@ public class ReduitFic {
         for (int col : colonnes) {
             //System.out.println("keys["+ col + "]: ("+ keys[col] + ")");
             // teste si donnée non valide : exemple ;;;;;;;;;;;;;;;;;;;;;;;
-            try {
-                String champ = dataLine[col];
-            } catch (java.lang.ArrayIndexOutOfBoundsException e) {
-                System.err.println("ArrayIndexOutOfBoundsException  line at " + col + " :(" + line + ") parts : " + dataLine.length);
-                //System.out.println("ArrayIndexOutOfBoundsException dataLine a ["+ (col -1)+ "]: keys("+keys[col-1]+") data : ("+ dataLine[col-1]+")"); 
-                //System.out.println(dataLine[col]);
-                return null;
-            }
+//            try {
+//                String champ = dataLine[col];
+//            } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+//                System.err.println("ArrayIndexOutOfBoundsException  line at " + col + " :(" + line + ") parts : " + dataLine.length);
+//                //System.out.println("ArrayIndexOutOfBoundsException dataLine a ["+ (col -1)+ "]: keys("+keys[col-1]+") data : ("+ dataLine[col-1]+")"); 
+//                //System.out.println(dataLine[col]);
+//                return null;
+//            }
             String filtreKey = mapFiltres.get(keys[col]);
             // filtre existant mais donnée non valide 
             if (filtreKey != null) {
@@ -341,11 +322,11 @@ public class ReduitFic {
             //System.out.println("sbLineOut : ("+ sbLineOut.toString().length() + ")");
         }
         //System.out.println("sbLineOut : ("+ sbLineOut.substring(0, sbLineOut.length() - 1).toString() + ")");
-        // retire les lignes remplies uniquement de ";"
-        String str = sbLineOut.substring(0, sbLineOut.length() - 1).toString();  // enleve le dernier ";"
-        if (countPv(str) == str.length()) {
-            return null;
-        }
+        String str = sbLineOut.substring(0, sbLineOut.length() - 1);  // enleve le dernier ";"
+//        if (countPv(str) == str.length()) { // enleve les lignes vides (remplies de ; )
+//            return null;
+//        }
+        if (isLigneVide(str)) { return null; }  // retire les lignes remplies uniquement de ";"
         return str;
     }
 
@@ -363,6 +344,20 @@ public class ReduitFic {
             countpv++;
         }
         return countpv;
+    }
+    
+    /**
+     * True si la ligne n'est composée que de ;
+     * @param line
+     * @return 
+     */
+    private boolean isLigneVide(String line) {
+        int i =0;
+        while (i <line.length()) {
+            if (line.charAt(i) != ';') return false;
+            i++;
+        }
+        return true;
     }
 
     public boolean compareFiltre(String value, String filtre) {
@@ -411,7 +406,9 @@ public class ReduitFic {
      * @return 
      */
     public boolean baseFiltre(String value, String filtre) {
-
+        if (filtre.length() == 1 && filtre.charAt(0) == '*') {
+            return true;
+        } // tous les champs
         // vide: #  et non vide !#
         if (filtre.length() == 1 && filtre.charAt(0) == '#') {
             return value.length() == 0;
