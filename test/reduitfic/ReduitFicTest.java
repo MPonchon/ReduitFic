@@ -5,7 +5,7 @@
  */
 package reduitfic;
 
-import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -62,13 +62,6 @@ public class ReduitFicTest {
         FR = new ReduitFic(args);
     }
     
-    /**
-     * Test of init, of class ReduitFic.
-     */
-    //@Test
-    public void testFillIni() {    
-        FR.fillIni();
-    }
     
     //@Test
     public void testPlanif() {
@@ -76,17 +69,10 @@ public class ReduitFicTest {
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniPlanif.txt3";
         args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\exportOT_20042016_planifiédu19.csv";
         args[2] = "-oF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\planifOut.csv";
-        
-
-        
         FR = new ReduitFic(args);
-        assertEquals(ReduitFic.ACTION_HELP, FR.action); // renvoi sur aide a cause de l'erreur dans le fichier
         
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniPlanif.txt";
         FR = new ReduitFic(args);
-        assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
-        FR.executeAction();
-     
     }
     
    // @Test
@@ -98,7 +84,6 @@ public class ReduitFicTest {
         args[0] = "-v";
         
         FR = new ReduitFic(args);
-        FR.executeAction();
     }
     
    // @Test
@@ -106,12 +91,11 @@ public class ReduitFicTest {
         String args[] = new String[4];
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniPlanif.txt";
         args[1] = "-oF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\planifOut.csv";
-       args[2] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\exportOT_20042016_planifiédu19.csv";
+        args[2] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\exportOT_20042016_planifiédu19.csv";
         args[0] = "-h";
         
         FR = new ReduitFic(args);
-        assertEquals(ReduitFic.ACTION_HELP, FR.action);
-        FR.executeAction();
+
     }   
     
     
@@ -124,12 +108,11 @@ public class ReduitFicTest {
         //args[2] = "-oF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIout.csv";
         
         FR = new ReduitFic(args);
-        assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
-     //   FR.executeAction();
+
         ReduitFic.main(args);
     }
 
-    @Test
+    //@Test
     public void testfiltreEC() {
         System.out.println("Test de testfiltreEC");
         String args[] = new String[3];
@@ -172,17 +155,16 @@ public class ReduitFicTest {
         assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
       //  FR.fillIni();
        // FR.readInList();
-        FR.executeAction();
      //   ReduitFic.main(args);
     }   
 
-    // @Test
+    @Test
     public void testSansOut() {
         System.out.println("Test de testSansOut");
         String args[] = new String[2];
         args[0] = "-i F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\iniETIallCol.txt";
         args[1] = "-s F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETI3_J15_151015_064743.csv";
-        
+        args[1] = "-s F:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETI3_J15.csv";
        // FR = new ReduitFic(args);
        // assertEquals(ReduitFic.ACTION_REDUIT, FR.action);
       //  FR.fillIni();
@@ -196,7 +178,7 @@ public class ReduitFicTest {
     /**
      * Test of reduitColonnes method, of class ReduitFic.
      */
-   // @Test
+    //@Test
     public void testCompareFiltre() {
         System.out.println("Test de testCompareFiltre");
         String chaine = "hello lolo";
@@ -206,7 +188,7 @@ public class ReduitFicTest {
         args[0] = "-iF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\initETI_filtre.txt";
         args[1] = "-sF:\\Zone Sauvegarde\\Documents\\Documents Marc\\C3P files\\extrData\\extrRsurP\\ETIsrc_test.csv";        
         FR = new ReduitFic(args);
-        /*
+        
         assertTrue(FR.compareFiltre(chaine, filtre));
         assertTrue(FR.compareFiltre(chaine, "lolo"));
         assertTrue(FR.compareFiltre(chaine, chaine));
@@ -215,7 +197,7 @@ public class ReduitFicTest {
         
         assertFalse(FR.compareFiltre(chaine, "lop"));
         assertFalse(FR.compareFiltre(chaine, "lop*"));
-        */
+        
         assertFalse(FR.compareFiltre(chaine, "!lolo"));
         assertFalse(FR.compareFiltre(chaine, "!*lolo"));
         assertFalse(FR.compareFiltre(chaine, "!hello*"));    
@@ -223,6 +205,72 @@ public class ReduitFicTest {
         assertTrue(FR.compareFiltre(chaine, "!lop*"));
     }
 
+   // @Test
+    public void testbFiltreContient() {
+        System.out.println("testbFiltreContient");
+        
+        assertTrue(ReduitFic.bFiltreContient("value toto lol", "*lo*"));
+        assertTrue(ReduitFic.bFiltreContient("value toto lol", "*lol"));
+        assertTrue(ReduitFic.bFiltreContient("value toto lol", "val*"));
+        assertTrue(ReduitFic.bFiltreContient("value toto lol", "*toto*"));
+        assertTrue(ReduitFic.bFiltreContient("value toto lol", "value toto lol"));
+        assertTrue(ReduitFic.bFiltreContient("value toto lol", "value toto lol*"));
+        
+        assertFalse(ReduitFic.bFiltreContient("value toto lol", "lol"));
+        assertFalse(ReduitFic.bFiltreContient("value toto lol", "lo*l"));
+    }
+    
+    @Test
+    public void testbaseFiltre() {
+        System.out.println("testbaseFiltre");
+        
+        assertTrue(ReduitFic.baseFiltre("value toto lol", "!lol"));
+        assertTrue(ReduitFic.baseFiltre("value toto lol", "*lo*"));
+        assertTrue(ReduitFic.baseFiltre("value toto lol", "*lol"));
+        assertTrue(ReduitFic.baseFiltre("value toto lol", "val*"));
+        assertTrue(ReduitFic.baseFiltre("value toto lol", "*toto*"));
+        assertTrue(ReduitFic.baseFiltre("value toto lol", "value toto lol"));       
+        
+        assertTrue(ReduitFic.baseFiltre("value toto lol", "!#"));  
+        assertFalse(ReduitFic.baseFiltre("value toto lol", "#"));  
+        assertFalse(ReduitFic.baseFiltre("", "!#"));  
+        assertTrue(ReduitFic.baseFiltre("", "#"));  
+        
+        assertFalse(ReduitFic.baseFiltre("value toto lol", "!*lol*"));
+        assertFalse(ReduitFic.baseFiltre("value toto lol", "!*lo*"));
+        assertFalse(ReduitFic.baseFiltre("value toto lol", "!*lol"));
+        assertFalse(ReduitFic.baseFiltre("value toto lol", "!val*"));
+        assertFalse(ReduitFic.baseFiltre("value toto lol", "!*toto*"));
+        assertFalse(ReduitFic.baseFiltre("value toto lol", "!value toto lol"));          
+    }
+    
+    @Test
+    public void testsetFiltreET() {
+        System.out.println("testsetFiltreET");
+        
+        assertTrue(ReduitFic.setFiltreET("value toto lol", "*lol&*toto*"));
+        assertTrue(ReduitFic.setFiltreET("value toto lol", "*lol&*toto*&value*"));
+        assertTrue(ReduitFic.setFiltreET("value toto lol", "*lol&*toto*&value toto lol"));
+
+        assertFalse(ReduitFic.setFiltreET("value toto lol", "*lol&*toto*&value toto lol&non"));
+
+    }
+    
+    @Test
+    public void testcompareFiltre() {
+        System.out.println("testcompareFiltre");
+        
+        assertTrue(ReduitFic.compareFiltre("value toto lol", "*lol&*toto*;*toto*"));
+        assertTrue(ReduitFic.compareFiltre("value toto lol", "*lol&*toto*&value*;!#"));
+        assertTrue(ReduitFic.compareFiltre("value toto lol", "*lol&*toto*&value toto lol"));
+
+        assertTrue(ReduitFic.compareFiltre("value toto lol", "*lol&*toto*&value toto lol;#"));
+        assertFalse(ReduitFic.compareFiltre("value toto lol", "*lol&*toto*&value toto lol&#"));
+    }    
+    
+    
+    
+    
     //@Test
     public void testCreateFile() {
         System.out.println("Test de testCreateFile");

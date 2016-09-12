@@ -3,16 +3,24 @@ package reduitfic;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 /**
  * Reduit les colonnes d'un fichier csv
@@ -36,17 +44,35 @@ import java.util.regex.Pattern;
  * Marc\MesDocuments\NetBeansProjects\reduitFic\dist\reduitFic.jar"
  * -iiniETIallCol.txt -sETI3_J15_151015_064743.csv
  */
-public class ReduitFic {
+public final class ReduitFic {
 
+    // parametres pour les options
+    Options options = null;
+    CommandLineParser parser = null;
+    CommandLine cmd = null;
+    HelpFormatter formatter = new HelpFormatter();
+
+    public final void initOptions() {
+        options = new Options();
+        options.addOption("h", "help", false, "Affiche l'aide");
+        options.addOption("ver", "version", false, "numero de version du jar");
+        
+        
+        options.addOption("s", "src", true, "fichier source (reference)");
+        options.addOption("i", "ini", true, "fichier init des colonnes a conserver");
+        options.addOption("o", "fileout", true, "nom du fichier de sortie");
+        
+    }    
+    
+    
     // actions possibles
     static public int ACTION_VERSION = 0;
     static public int ACTION_HELP = 1;
     static public int ACTION_REDUIT = 2;
 
-    String version = "ReduitFic v1.4";
-    String DescritonVersion = "Modification parametres.";
+    String version = "1.5";
 
-    String[] fileName;  // nom des fichiers
+    String[] fileNames;  // nom des fichiers
     static private int FILE_INI = 0;
     static private int FILE_SRC = 1;
     static private int FILE_OUT = 2;
@@ -67,13 +93,13 @@ public class ReduitFic {
      * @param args
      */
     public ReduitFic(String[] args) {
-        fileName = new String[3];
-        action = chooseAction(args);
-        /*
-         for (String file : fileName) {
-         System.out.println("file :[" + file + "] ");
-         }
-         */
+        
+        initOptions();
+                
+        fileNames = new String[3];
+        if (traiteCmd(args)) {
+            reduitColonnes();
+        }
     }
 
     /**
@@ -81,69 +107,54 @@ public class ReduitFic {
      */
     public static void main(String[] args) {
         ReduitFic FR = new ReduitFic(args);
-        FR.executeAction();
     }
 
-    /**
-     * Choix de l'action en fonction des arguments.
-     *
-     * @param args
-     * @return l'action choisie
+        /**
+     * recupere les options passees en argument.
+     * @param args 
+     * @return  true : continue l'execution, false arret.
      */
-    public int chooseAction(String[] args) {
-        int action = ACTION_VERSION;
-
-        //System.out.println("args : ["+ args.length+"]");
-        for (String param : args) {
-            //System.out.println("param : ["+ param + "]");
-            if (param.length() < 2) {
-                continue;
-            }
-            if (param.charAt(0) != '-') {
-                continue;
-            }
-
-            char opt = param.charAt(1); // 0 : - 
-            // System.out.println("param : ["+ param + "], opt :[" +opt +"]");
-            // options prioritaires, sortie de boucle
-            // par ordre de priorité de traitement
-            if (opt == 'v') {
-                return ACTION_VERSION;
-            }
-            if (opt == 'h') {
-                return ACTION_HELP;
-            }
-
-            String file = ltrim(param.substring(2, param.length())); // supprime les espaces entre option et le reste
-            if (opt == 'i') {
-                action = this.action = ACTION_REDUIT;
-                fileName[FILE_INI] = file;
-            }
-            if (opt == 's') {
-                //System.out.println("fileName [" + fileName + "]");
-                action = this.action = ACTION_REDUIT;
-                fileName[FILE_SRC] = file;
-            }
-            if (opt == 'o') {
-                action = ACTION_REDUIT;
-                fileName[FILE_OUT] = file;
-            }
+    public final boolean traiteCmd(String[] args) {
+        parser = new DefaultParser();
+        //System.err.println("args 01 : " + args[0] + ".");
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException ex) {
+            System.out.println("Unexpected exception:" + ex.getMessage());
         }
-        return action;
-    }
 
-    /**
-     * Execution de l'action
-     */
-    public void executeAction() {
-        if (action == ACTION_VERSION) {
-            afficheVersion();
-        } else if (action == ACTION_HELP) {
-            AfficheHelp();
-        } else if (action == ACTION_REDUIT) {
-            reduitColonnes();
+        if (cmd.hasOption("h")) {
+            afficheHelp();
+            return false;
         }
+        
+        if (cmd.hasOption("ver")) {
+            System.out.println("reduitFic version : "+version);
+            return false;
+        }
+ 
+        //------------------------------------------
+        // source
+        if (!cmd.hasOption("s")) {
+            System.err.println("Erreur : fichier source invalide.");
+        }
+        else {
+            fileNames[FILE_SRC] = cmd.getOptionValue("s").trim();
+        }
+        
+        if (!cmd.hasOption("i")) {
+            System.err.println("Erreur : fichier source invalide.");
+        }
+        else {
+            fileNames[FILE_INI] = cmd.getOptionValue("i").trim();
+        }  
+        if (cmd.hasOption("o")) {
+           action = ACTION_REDUIT;
+           fileNames[FILE_OUT] = cmd.getOptionValue("o").trim();
+        }
+        return true;
     }
+    
 
     /**
      * cree le fichier et ajoute le rep courant si necessaire
@@ -168,20 +179,22 @@ public class ReduitFic {
         // StringBuilder contents = new StringBuilder();
         try {
             // creation du fichier
-            //File fileIni = new File(fileName[FILE_INI]);
-            File fileIni = createFile(fileName[FILE_INI]);
+            //File fileIni = new File(fileNames[FILE_INI]);
+            File fileIni = createFile(fileNames[FILE_INI]);
             if (!fileIni.isFile()) {
-                throw new java.io.FileNotFoundException();// "fileIn -i incorrect : " + fileName[FILE_INI]);
+                throw new java.io.FileNotFoundException();// "fileIn -i incorrect : " + fileNames[FILE_INI]);
             }
             //use buffering, reading one line at a time
             //FileReader always assumes default encoding is OK!
-            BufferedReader input = new BufferedReader(new FileReader(fileIni));
+            BufferedReader input = new BufferedReader( //new FileReader(fileIni));
+                                        new InputStreamReader(
+                                            new FileInputStream(fileIni), "UTF8"));
             try {
                 String line = null; //not declared within while loop
                 while ((line = input.readLine()) != null) {
                     // rempli les filtres pour chaque colonne
                     String[] parts = line.split("[;]");
-                    //System.out.println("fillIni :: line :[" + line + "] parts :" +  parts.length );
+                   // System.out.println("fillIni :: line :[" + line + "] parts :" +  parts.length );
                     fieldsIni.add(parts[0]);
                     if (parts.length > 1) {
                         int ps = line.indexOf(";") + 1;
@@ -221,9 +234,9 @@ public class ReduitFic {
 //        System.out.println("fieldsIni contient " + fieldsIni.size()+ " elem");
         try {
             // creation du fichier
-            File fileSrc = createFile(fileName[FILE_SRC]);
+            File fileSrc = createFile(fileNames[FILE_SRC]);
             if (!fileSrc.isFile()) {
-                throw new FileNotFoundException("FILE_SRC -s incorrect : " + fileName[FILE_SRC]);
+                throw new FileNotFoundException("FILE_SRC -s incorrect : " + fileNames[FILE_SRC]);
             }
             //use buffering, reading one line at a time
             //FileReader always assumes default encoding is OK!
@@ -266,7 +279,7 @@ public class ReduitFic {
             }
             input.close();
         } catch (FileNotFoundException ex) {
-            System.err.println("Erreur fichier source introuvale : [" + fileName[FILE_SRC] + "]");
+            System.err.println("Erreur fichier source introuvale : [" + fileNames[FILE_SRC] + "]");
             return null;
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -360,14 +373,14 @@ public class ReduitFic {
         return true;
     }
 
-    public boolean compareFiltre(String value, String filtre) {
+    public static boolean compareFiltre(String value, String filtre) {
         //System.out.println("value : (" + value + ") : filtre{" + filtre + "} ");
         String[] parts = filtre.split(";");
         if (parts.length > 1) {
             // applique les filtres OU
             boolean result = false;
             for (int i = 0; i < parts.length; i++) {
-                //System.out.println("value : ("+ value + ") : filtre{"+filtre+"} : ("+ parts[i] + ") :  return : " + testFiltre(value, parts[i]));
+                //System.out.println("value : ("+ value + ") : filtre{"+filtre+"} : ("+ parts[i] + ") :  return : " + setFiltreET(value, parts[i]));
                 result |= setFiltreET(value, parts[i]);
             }
             return result;
@@ -382,12 +395,12 @@ public class ReduitFic {
      * @param filtre filtre entre 2 ;
      * @return true ou false
      */
-    public boolean setFiltreET(String value, String filtre) {
+    public static boolean  setFiltreET(String value, String filtre) {
         // applique les filtres ET
         boolean resultET = true;
         String[] partsET = filtre.split("&");
         for (int e = 0; e < partsET.length; e++) {
-            //System.out.println("value : (" + value + ") : filtre{" + filtre + "} : (" + partsET[e] + ") :  return : " + testFiltre(value, partsET[e]));
+            //System.out.println("value : (" + value + ") : filtre{" + filtre + "} : (" + partsET[e] + ")");// :  return : " + baseFiltre(value, partsET[e]));
             resultET &= baseFiltre(value, partsET[e]);
         }
         return resultET;
@@ -405,7 +418,7 @@ public class ReduitFic {
      * @param filtre
      * @return 
      */
-    public boolean baseFiltre(String value, String filtre) {
+    public static boolean baseFiltre(String value, String filtre) {
         if (filtre.length() == 1 && filtre.charAt(0) == '*') {
             return true;
         } // tous les champs
@@ -423,7 +436,14 @@ public class ReduitFic {
         return bFiltreContient(value, filtre);
     }
 
-    public boolean bFiltreContient(String value, String filtre) {
+    /**
+     * Teste si une valeur contient le filtre
+     * "*blabla"  ou "blabla*" ou "*blabla*" ou "blabla"
+     * @param value
+     * @param filtre '*' caractere joker
+     * @return 
+     */
+    public static boolean bFiltreContient(String value, String filtre) {
         if (filtre.charAt(0) == '*') {
             if (filtre.charAt(filtre.length() - 1) == '*') {
                 return value.contains(filtre.substring(1, filtre.length() - 1));
@@ -440,6 +460,7 @@ public class ReduitFic {
     /**
      * Ecrit le arraylist dans un fichier
      *
+     * @param data
      * @return true si le fichier est créé
      */
     public boolean writeToFile(ArrayList<String> data) {
@@ -451,22 +472,22 @@ public class ReduitFic {
             return false;
         }
         // System.out.println("writeToFile : fileOut ["+fileOut+"]");
-        if (fileName[FILE_OUT] == null) {
+        if (fileNames[FILE_OUT] == null) {
 
-            fileName[FILE_OUT] = fileName[FILE_SRC];
-            int pos = fileName[FILE_SRC].lastIndexOf("\\", fileName[FILE_SRC].length());
+            fileNames[FILE_OUT] = fileNames[FILE_SRC];
+            int pos = fileNames[FILE_SRC].lastIndexOf("\\", fileNames[FILE_SRC].length());
             if (pos > 0) {
-                fileName[FILE_OUT] = fileName[FILE_SRC].substring(0, pos) + "\\out.csv";
+                fileNames[FILE_OUT] = fileNames[FILE_SRC].substring(0, pos) + "\\out.csv";
             } else {
-                fileName[FILE_OUT] = "out.csv";
+                fileNames[FILE_OUT] = "out.csv";
             }
             //System.out.println("pos :" + pos);
-            //System.out.println("fileOutName :" + fileName[FILE_OUT]);
+            //System.out.println("fileOutName :" + fileNames[FILE_OUT]);
 
         }
         try {
-            // File fileOut = new File(fileName[FILE_OUT]);
-            File fileOut = createFile(fileName[FILE_OUT]);
+            // File fileOut = new File(fileNames[FILE_OUT]);
+            File fileOut = createFile(fileNames[FILE_OUT]);
 
             FileWriter fileWriter = new FileWriter(fileOut);  // Assume default encoding.
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter); // Always wrap FileWriter in BufferedWriter.
@@ -501,14 +522,14 @@ public class ReduitFic {
         try {
             fillIni(); // rempli le HashSet avec fileini
         } catch (java.io.FileNotFoundException e) {
-            System.out.println("Fichier introuvable : [" + fileName[FILE_INI] + "]." + e.getMessage());
+            System.out.println("Fichier ini introuvable : [" + fileNames[FILE_INI] + "]." + e.getMessage());
             return;
         }
 
         if (writeToFile(readInList())) {
-            System.out.println("Fichier [" + fileName[FILE_OUT] + "] crée.");
+            System.out.println("Fichier [" + fileNames[FILE_OUT] + "] crée.");
         } else {
-            System.out.println("Erreur de création du fichier : [" + fileName[FILE_OUT] + "].");
+            System.out.println("Erreur de création du fichier : [" + fileNames[FILE_OUT] + "].");
         }
     }
 
@@ -516,15 +537,10 @@ public class ReduitFic {
     /*
      * aide en ligne de commande   
      */
-    public void AfficheHelp() {
-        System.out.println();
-        afficheVersion();
-        System.out.println("------------------");
-        System.out.println("Aide : reduit le nombre de colonne d'un fichier.");
+    public void afficheHelp() {
+
         StringBuilder str = new StringBuilder();
-        str.append("options :\n");
-        str.append("\n-s fichierSource :\n nom du fichier du fichier source\n");
-        str.append("\n-i fichierInit.ini :\n indiquez les noms des champs (colonnes) à conserver\n");
+        str.append("Aide : reduit le nombre de colonne d'un fichier.");
         str.append(" Ajouter des filtres à la suite du nom du champ (condition OU).\n");
         str.append(" Exemple :\n  NOM CHAMP;*DGT;*FTH*  pour obtenir les données qui finissent par DGT\n");
         str.append("  OU qui contiennent FTH.\n");
@@ -538,11 +554,8 @@ public class ReduitFic {
         str.append(" et sera place dans le repertoire de la source.");
         str.append("\n");
         str.append("\n Exemple d'utilisation:\n java -jar \"reduitFic.jar\" \"-i fileini.ini\" \"-s filesrc.csv\" \"-o fileout.csv\" \n");
-
-        System.out.println(str.toString());
+        
+        formatter.printHelp(str.toString() + "\n", options);
     }
 
-    private void afficheVersion() {
-        System.out.println(version);
-    }
 }
